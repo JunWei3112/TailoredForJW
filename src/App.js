@@ -5,7 +5,10 @@ class Task extends React.Component {
     render() {
         return (
             <div className="task">
-                {this.props.task}
+                <div>
+                    {this.props.task}
+                </div>
+                <button className="removeTask-btn" onClick={() => this.props.onClick(this.props.id)}>Remove Task</button>
             </div>
         )
     }
@@ -13,17 +16,17 @@ class Task extends React.Component {
 
 class TaskList extends React.Component {
     render() {
-        const taskList = this.props.tasks.map((task, index) => {
-            const taskDesc = '#' + (index + 1) + ": " + task;
+        const taskList = this.props.tasks.map((taskObj) => {
+            const taskDesc = '#' + (taskObj.id + 1) + ": " + taskObj.task;
             return (
-                <div key={index}>
-                    {taskDesc}
-                </div>
+                <Task key={taskObj.id} id={taskObj.id} task={taskDesc} onClick={(index) => this.props.onClick(index)}></Task>
             )
         })
 
         return (
-            <div>{taskList}</div>
+            <div className="taskList">
+                {taskList}
+            </div>
         )
     }
 }
@@ -48,18 +51,29 @@ class App extends React.Component {
     onHandleSubmit(e) {
         e.preventDefault();
         const newTasks = this.state.tasks.slice();
-        newTasks.push(this.state.taskData);
+        newTasks.push({ id: this.state.tasks.length, task: this.state.taskData});
         this.setState({
             tasks: newTasks,
             taskData: '',
         })
     }
 
+    removeTask(i) {
+        this.state.tasks.splice(i, 1);
+        const newTasks = [];
+        this.state.tasks.forEach((taskObj, index) => {
+            newTasks.push({ id: index, task: taskObj.task });
+        })
+        this.setState({
+            tasks: newTasks,
+        })
+    }
+
     render() {
         return (
             <div>
-                <TaskList tasks={this.state.tasks}></TaskList>
-                <form>
+                <TaskList tasks={this.state.tasks} onClick={(index) => this.removeTask(index)}></TaskList>
+                <form className="addTask-form">
                     <input 
                         type="text" 
                         onChange={this.onHandleChange}
